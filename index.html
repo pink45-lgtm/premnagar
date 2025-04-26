@@ -9,24 +9,20 @@
         /* Custom styles */
         body {
             font-family: "Inter", sans-serif;
-            background-color: #1a202c; /* Dark background fallback */
+            background-color: #1a202c; /* Dark background for other screens */
             color: #e2e8f0; /* Light text */
-            padding: 20px;
+            padding: 0; /* Remove body padding as content containers have padding */
             min-height: 100vh; /* Ensure body takes at least full viewport height */
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Background image styles */
-            background-image: url('https://pink45-lgtm.github.io/premnagar/backgrond_m.jpg');
-            background-size: cover; /* Cover the entire background */
-            background-attachment: fixed; /* Fix the background image position */
-            background-position: center; /* Center the background image */
         }
         .container {
             width: 100%;
             max-width: 1000px; /* Max width for the main container */
             z-index: 1; /* Ensure content is above background */
             position: relative; /* Needed for z-index */
+            padding: 20px; /* Add padding to the main container */
         }
 
         /* Splash Screen Styles */
@@ -36,31 +32,86 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #1a202c; /* Match body background */
+            background-color: #1a202c; /* Dark background fallback */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 100; /* High z-index to cover everything */
             transition: opacity 0.5s ease-in-out; /* Smooth fade out */
+            background-image: url('https://pink45-lgtm.github.io/premnagar/main_logo.png');
+            /* Changed background-size to contain */
+            background-size: contain; /* Contain the entire image within the screen */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; /* Do not repeat the background image */
         }
         #splash-screen.hidden {
             opacity: 0;
             pointer-events: none; /* Disable interaction when hidden */
         }
-        #splash-screen img {
-            max-width: 80%; /* Max width of the logo */
-            max-height: 80%; /* Max height of the logo */
-            object-fit: contain; /* Ensure logo is not distorted */
+
+        /* Login Screen Styles */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(26, 32, 44, 0.9); /* Semi-transparent dark background */
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            z-index: 90; /* Below splash screen, above content */
+        }
+
+        .login-form {
+            background-color: #2d3748; /* Darker background for form */
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 90%;
+            max-width: 350px; /* Max width for the form */
+        }
+
+        .login-form input {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #4a5568; /* Darker border */
+            background-color: #4a5568; /* Darker input background */
+            color: #e2e8f0; /* Light text */
+        }
+
+        .login-button {
+             padding: 10px 20px;
+            background-color: #f6e05e; /* Tailwind yellow-400 */
+            color: #2d3748; /* Dark text for contrast */
+            border: none;
+            border-radius: 4px; /* Standard button corners */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-weight: bold; /* Make text bold */
+        }
+        .login-button:hover {
+            background-color: #ecc94b; /* Tailwind yellow-500 */
+        }
+
+        .error-message {
+            color: #f56565; /* Adjust error message color for dark theme */
+            text-align: center;
+            font-size: 0.9em;
         }
 
 
         /* Changed from grid to flex for list layout */
         .movie-list-view {
-            display: flex;
+            display: none; /* Initially hidden */
             flex-direction: column; /* Stack items vertically */
             gap: 15px; /* Space between list items */
             width: 100%; /* Take full width */
             align-items: center; /* Center the list items themselves */
+            position: relative; /* Needed for absolute positioning of refresh button */
         }
         .movie-item {
             display: flex;
@@ -140,24 +191,33 @@
             width: 100%;
             flex-direction: column;
             align-items: center;
+            /* Add padding to the top to make space for the fixed player */
+            padding-top: 56.25vw; /* Padding equal to 16:9 aspect ratio of full width */
+            position: relative; /* Needed for z-index */
+            z-index: 1; /* Ensure content is above background */
         }
-        .video-player-container {
-            position: relative;
-            width: 100%;
+
+        /* Fixed Video Player Styles */
+        #video-player-container {
+            position: fixed; /* Fix player position */
+            top: 0; /* Align to the top */
+            left: 0; /* Align to the left */
+            width: 100%; /* Full width */
+            /* Use padding-bottom for 16:9 aspect ratio when fixed */
             padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
+            height: 0; /* Height is controlled by padding-bottom */
             overflow: hidden;
             background-color: #000; /* Black background for player area */
-            border-radius: 8px;
-            margin-bottom: 20px;
+            z-index: 50; /* Ensure player is above other content but below splash screen */
         }
-        .video-player-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+         #video-player-container iframe {
+             position: absolute;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+         }
+
         .video-links-list {
             width: 100%;
             display: flex;
@@ -165,6 +225,8 @@
             gap: 10px;
             padding: 0;
             list-style: none; /* Remove default list styling */
+             /* Add margin to the top to prevent content from being hidden by the fixed player */
+            margin-top: 20px; /* Adjust as needed */
         }
         .video-links-list li {
             background-color: #4a5568; /* Darker gray background for list items */
@@ -185,8 +247,7 @@
         }
 
         /* Yellow button styles */
-        .back-button {
-            margin-bottom: 20px;
+        .button-style {
             padding: 10px 20px;
             background-color: #f6e05e; /* Tailwind yellow-400 */
             color: #2d3748; /* Dark text for contrast */
@@ -196,9 +257,28 @@
             transition: background-color 0.2s ease-in-out;
             font-weight: bold; /* Make text bold */
         }
-        .back-button:hover {
+        .button-style:hover {
             background-color: #ecc94b; /* Tailwind yellow-500 */
         }
+
+        .logout-button {
+            margin-top: 30px; /* Space above logout button */
+            align-self: center; /* Center the button in the flex container */
+        }
+
+        /* Refresh Button Styles */
+        .refresh-button {
+            position: absolute;
+            top: 10px; /* Adjust vertical position */
+            right: 10px; /* Adjust horizontal position */
+            z-index: 10; /* Ensure it's above list items */
+             /* Inherit button styles */
+            padding: 5px 10px; /* Smaller padding for refresh button */
+            border-radius: 20px; /* More rounded */
+            font-size: 0.8em; /* Smaller font */
+        }
+
+
          .text-red-500 {
              color: #f56565; /* Adjust error message color for dark theme */
          }
@@ -209,19 +289,31 @@
 <body>
 
     <div id="splash-screen">
-        <img src="https://pink45-lgtm.github.io/premnagar/main_logo.png" alt="PremNagar Logo">
+        </div>
+
+    <div id="login-screen">
+        <div class="login-form">
+            <h2 class="text-2xl font-bold text-center text-e2e8f0">Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="login-button" class="login-button">Login</button>
+            <p id="error-message" class="error-message"></p>
+        </div>
     </div>
+
 
     <div class="container mx-auto">
         <h1 class="text-3xl font-bold text-center my-8">PremNagar</h1>
 
         <div id="movie-list-view" class="movie-list-view">
-            <p>Loading movie data...</p>
+            <p id="loading-or-error-message">Loading movie data...</p>
+            <button id="logout-button" class="button-style logout-button">Logout</button>
+            <button id="refresh-button" class="button-style refresh-button" style="display: none;">Refresh</button>
         </div>
 
         <div id="video-details-view" class="video-details-view">
-            <button id="back-button" class="back-button">Home</button>
-            <div id="video-player-container" class="video-player-container">
+            <button id="back-button" class="button-style">Home</button>
+            <div id="video-player-container">
                 <p class="text-white text-center p-4">Loading video player...</p>
             </div>
              <h2 id="video-list-title" class="text-xl font-semibold mb-4 w-full text-left">Videos</h2>
@@ -231,23 +323,105 @@
     </div>
 
     <script>
+        // Load the YouTube Iframe Player API asynchronously
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQbfSEJakefZg9lBdsREkYqubf7LqzkLo89wWkmqoCdtGZjQBj-QYKdMlCcEZ1v0klmaEQ5W8cSYrM/pub?gid=0&single=true&output=csv";
         // Base URL pattern for posters. [index] will be replaced by the movie's index (starting from 0).
         const POSTER_BASE_URL = "https://pink45-lgtm.github.io/premnagar/poster"; // .png will be appended
 
-        const splashScreen = document.getElementById('splash-screen');
-        const movieListView = document.getElementById('movie-list-view');
-        const videoDetailsView = document.getElementById('video-details-view');
-        const videoPlayerContainer = document.getElementById('video-player-container');
-        const videoLinksList = document.getElementById('video-links-list');
-        const backButton = document.getElementById('back-button');
-        const videoListTitle = document.getElementById('video-list-title');
+        let splashScreen;
+        let loginScreen;
+        let usernameInput;
+        let passwordInput;
+        let loginButton;
+        let errorMessage;
+        let movieListView;
+        let videoDetailsView;
+        let videoPlayerContainer;
+        let videoLinksList;
+        let backButton;
+        let videoListTitle;
+        let logoutButton;
+        let refreshButton;
+        let loadingOrErrorMessage;
 
 
         let movieData = []; // Array to store parsed movie data
+        let player; // YouTube player object
+        let currentMovieIndex = -1; // Index of the currently selected movie
+        let currentVideoIndex = -1; // Index of the currently playing video within the movie
+        let isLoggedIn = false; // Flag to track login status
+
+
+        // This function creates an <iframe> (and YouTube player)
+        // after the API code downloads.
+        function onYouTubeIframeAPIReady() {
+            // The player will be created when a movie is selected and showMovieDetails is called
+            console.log("YouTube Iframe API is ready.");
+        }
+
+        // The API will call this function when the video player is ready.
+        function onPlayerReady(event) {
+            // event.target.playVideo(); // Autoplay is handled by loadVideoById
+            console.log("YouTube Player is ready.");
+        }
+
+        // The API calls this function when the player's state changes.
+        // The function indicates that the player is playing (state=1), paused (state=2), ended (state=0),
+        // buffered (state=3), video cued (state=5).
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+                console.log("Video ended. Attempting to play next.");
+                playNextVideo();
+            }
+        }
+
+        // Function to play the next video in the current movie's list
+        function playNextVideo() {
+            if (currentMovieIndex !== -1 && movieData[currentMovieIndex]) {
+                const movie = movieData[currentMovieIndex];
+                const nextVideoIndex = currentVideoIndex + 1;
+
+                if (nextVideoIndex < movie.videoIds.length) {
+                    currentVideoIndex = nextVideoIndex;
+                    loadVideoInPlayer(movie.videoIds[currentVideoIndex]);
+                     // Optionally highlight the next video in the list
+                     highlightCurrentVideoLink(currentVideoIndex);
+                } else {
+                    console.log("End of video list for this movie.");
+                    // Optionally loop back to the first video or stop
+                    // loadVideoInPlayer(movie.videoIds[0]); // Loop
+                    // player.stopVideo(); // Stop
+                }
+            }
+        }
+
+        // Function to highlight the currently playing video link in the list
+        function highlightCurrentVideoLink(index) {
+            // Remove highlight from all links first
+            videoLinksList.querySelectorAll('li').forEach(item => {
+                item.classList.remove('bg-yellow-400', 'text-gray-800'); // Tailwind classes for highlight
+            });
+
+            // Add highlight to the current video link
+            const currentVideoItem = videoLinksList.querySelector(`li:nth-child(${index + 1})`);
+            if (currentVideoItem) {
+                 currentVideoItem.classList.add('bg-yellow-400', 'text-gray-800'); // Tailwind classes for highlight
+            }
+        }
+
 
         // Function to fetch and parse CSV data
         async function fetchAndProcessMovies() {
+            console.log("Fetching movie data...");
+            // Show loading message
+            loadingOrErrorMessage.textContent = 'Loading movie data...';
+            loadingOrErrorMessage.classList.remove('text-red-500'); // Remove error styling
+
             try {
                 const response = await fetch(CSV_URL);
                 if (!response.ok) {
@@ -258,8 +432,6 @@
                 // Simple CSV parsing: split by newline
                 const rows = csvText.trim().split('\n');
 
-                // Clear loading message
-                movieListView.innerHTML = '';
                 movieData = []; // Reset movie data array
 
                 // Process each row, skipping the first row (assuming it's a header)
@@ -297,22 +469,44 @@
                     }
                 }
 
+                // Clear loading message on success
+                loadingOrErrorMessage.textContent = '';
+
                 // Now display the movie items in a list
                 displayMovieItemsAsList();
 
-                // Hide the splash screen after data is loaded and displayed
-                hideSplashScreen();
+                // Add the logout button after loading the list
+                 addLogoutButton();
+
+                // If logged in, show the movie list view
+                if (isLoggedIn) {
+                    showMovieListView();
+                }
+
 
             } catch (error) {
                 console.error("Error fetching or parsing CSV:", error);
-                movieListView.innerHTML = '<p class="text-red-500">Failed to load movie data. Please try again later.</p>';
-                 // Hide splash screen even on error
-                hideSplashScreen();
+                loadingOrErrorMessage.textContent = 'Failed to load movie data. Please try again later.';
+                loadingOrErrorMessage.classList.add('text-red-500'); // Add error styling
+
+                 // Add the logout button even on error
+                 addLogoutButton();
+
+                 // If logged in, show the movie list view with the error message
+                 if (isLoggedIn) {
+                     showMovieListView();
+                 }
             }
         }
 
         // Function to display movie items as a list and set up click handlers
         function displayMovieItemsAsList() {
+            // Clear previous list items, but keep the loading message or error message if present
+            // We will append new items after the potential initial messages.
+            // Find and remove any existing movie items before adding new ones
+            movieListView.querySelectorAll('.movie-item').forEach(item => item.remove());
+
+
             movieData.forEach((movie, index) => {
                 const movieItemDiv = document.createElement('div');
                 movieItemDiv.classList.add('movie-item');
@@ -346,16 +540,27 @@
                     showMovieDetails(index);
                 });
 
-                movieListView.appendChild(movieItemDiv);
+                // Insert the new movie item before the logout button
+                // Ensure logoutButton exists before inserting
+                if (logoutButton) {
+                    movieListView.insertBefore(movieItemDiv, logoutButton);
+                } else {
+                    // If logoutButton is not yet added, just append
+                    movieListView.appendChild(movieItemDiv);
+                }
+
             });
         }
 
         // Function to show the video details view for a specific movie
         function showMovieDetails(movieIndex) {
             const movie = movieData[movieIndex];
+            currentMovieIndex = movieIndex; // Set the current movie index
+            currentVideoIndex = 0; // Start with the first video
 
             // Hide the list view
             movieListView.style.display = 'none';
+            refreshButton.style.display = 'none'; // Hide refresh button
 
             // Show the video details view
             videoDetailsView.style.display = 'flex';
@@ -368,8 +573,12 @@
 
             // Populate video links
             if (movie.videoIds && movie.videoIds.length > 0) {
-                // Load the first video by default
-                 loadVideoInPlayer(movie.videoIds[0]);
+                 // Create the iframe element with a specific ID for the API
+                 videoPlayerContainer.innerHTML = '<div id="youtube-player"></div>';
+
+                // Load the first video using the API
+                 loadVideoInPlayer(movie.videoIds[currentVideoIndex]);
+                 highlightCurrentVideoLink(currentVideoIndex); // Highlight the first video
 
                 movie.videoIds.forEach((videoId, i) => {
                     const videoTitle = movie.videoTitles[i] ? movie.videoTitles[i] : `Part ${i + 1}`;
@@ -381,10 +590,13 @@
 
                     listItem.appendChild(videoLink);
                     listItem.dataset.videoId = videoId; // Store video ID on the list item
+                    listItem.dataset.videoIndex = i; // Store video index
 
                     // Add click listener to the list item to change the video player source
                     listItem.addEventListener('click', () => {
+                        currentVideoIndex = i; // Update current video index
                         loadVideoInPlayer(videoId);
+                        highlightCurrentVideoLink(currentVideoIndex); // Highlight clicked video
                     });
 
                     videoLinksList.appendChild(listItem);
@@ -399,30 +611,27 @@
             }
         }
 
-        // Function to load a video into the iframe player
+        // Function to load a video into the iframe player using the API
         function loadVideoInPlayer(videoId) {
-             // Clear previous content
-             videoPlayerContainer.innerHTML = '';
-
-             if (videoId) {
-                const iframe = document.createElement('iframe');
-                iframe.width = "100%"; // Set width and height via CSS for responsiveness
-                iframe.height = "100%";
-                // Use YouTube embed URL
-                // NOTE: The provided video IDs seem to be Google Drive IDs, not YouTube IDs.
-                // This will not work with a standard YouTube embed URL.
-                // Assuming for now they *should* be YouTube IDs based on the request for a YouTube player.
-                // If they are not YouTube IDs, the video player will not work.
-                // Corrected YouTube embed URL format
-                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                iframe.frameBorder = "0";
-                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowFullscreen = true;
-
-                videoPlayerContainer.appendChild(iframe);
+             if (!player) {
+                 // Create the YouTube player if it doesn't exist
+                 player = new YT.Player('youtube-player', {
+                     videoId: videoId, // Video ID to load
+                     events: {
+                         'onReady': onPlayerReady,
+                         'onStateChange': onPlayerStateChange
+                     },
+                     playerVars: {
+                         'autoplay': 1, // Autoplay the video
+                         'controls': 1, // Show player controls
+                         'rel': 0 // Do not show related videos at the end
+                     }
+                 });
              } else {
-                 videoPlayerContainer.innerHTML = '<p class="text-white text-center p-4">Invalid video ID.</p>';
+                 // Load the new video if the player already exists
+                 player.loadVideoById(videoId);
              }
+             console.log(`Attempting to load video ID: ${videoId}`);
         }
 
 
@@ -433,20 +642,147 @@
 
             // Show the list view
             movieListView.style.display = 'flex'; // Use 'flex' display for the list layout
+
+            // Show refresh button
+            refreshButton.style.display = 'block'; // Or 'flex' depending on its container
+
+            // Stop the video player when going back to the list view
+            if (player) {
+                player.stopVideo();
+                 // Optionally destroy the player to free up resources
+                 // player.destroy();
+                 // player = null;
+            }
+             currentMovieIndex = -1; // Reset movie index
+             currentVideoIndex = -1; // Reset video index
         }
 
-        // Function to hide the splash screen
-        function hideSplashScreen() {
-            splashScreen.classList.add('hidden');
+        // Function to show the login screen
+        function showLoginScreen() {
+             console.log("Showing login screen."); // Log when showLoginScreen is called
+             loginScreen.style.display = 'flex';
+             // Clear input fields and error message
+             usernameInput.value = '';
+             passwordInput.value = '';
+             errorMessage.textContent = '';
+
+             // Ensure other views are hidden
+             movieListView.style.display = 'none';
+             videoDetailsView.style.display = 'none';
+             refreshButton.style.display = 'none'; // Hide refresh button
         }
 
+        // Function to hide the login screen
+        function hideLoginScreen() {
+             loginScreen.style.display = 'none';
+        }
 
-        // Add event listener to the back button
-        backButton.addEventListener('click', showMovieListView);
+        // Function to handle login
+        function handleLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // Check credentials
+            if (username === 'test' && password === '123') {
+                isLoggedIn = true; // Set login status
+                hideLoginScreen();
+                // If movie data is already loaded or failed, show the list view
+                if (movieData.length > 0 || loadingOrErrorMessage.textContent !== 'Loading movie data...') {
+                     showMovieListView();
+                }
+                // If data is still loading, fetchAndProcessMovies will show the view when done
+            } else {
+                errorMessage.textContent = 'Invalid username or password.';
+            }
+        }
+
+        // Function to handle logout
+        function handleLogout() {
+            isLoggedIn = false; // Reset login status
+            showLoginScreen(); // Go back to the login screen
+            showMovieListView(); // Ensure movie list view is hidden and player is stopped
+             // Clear movie list content
+             movieListView.innerHTML = ''; // Clear all content including loading/error and logout button
+             // Re-add the initial loading message and logout button structure
+             movieListView.appendChild(loadingOrErrorMessage);
+             movieListView.appendChild(logoutButton);
+             movieListView.appendChild(refreshButton); // Re-add refresh button HTML
+        }
+
+        // Function to add the logout button to the movie list view
+        function addLogoutButton() {
+             // Check if the logout button already exists to avoid duplicates
+             if (!movieListView.querySelector('.logout-button')) {
+                 movieListView.appendChild(logoutButton);
+             }
+        }
+
+         // Function to add the refresh button to the movie list view
+         function addRefreshButton() {
+             // Check if the refresh button already exists to avoid duplicates
+             if (!movieListView.querySelector('.refresh-button')) {
+                 movieListView.appendChild(refreshButton);
+             }
+         }
 
 
-        // Fetch and process data when the page loads
-        fetchAndProcessMovies();
+        // Wait for the DOM to be fully loaded before getting element references and adding listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded."); // Log when DOMContentLoaded fires
+            // Get element references inside DOMContentLoaded
+            splashScreen = document.getElementById('splash-screen'); // Get splash screen reference
+            loginScreen = document.getElementById('login-screen');
+            usernameInput = document.getElementById('username');
+            passwordInput = document.getElementById('password');
+            loginButton = document.getElementById('login-button');
+            errorMessage = document.getElementById('error-message');
+            movieListView = document.getElementById('movie-list-view');
+            videoDetailsView = document.getElementById('video-details-view');
+            videoPlayerContainer = document.getElementById('video-player-container');
+            videoLinksList = document.getElementById('video-links-list');
+            backButton = document.getElementById('back-button');
+            videoListTitle = document.getElementById('video-list-title');
+            logoutButton = document.getElementById('logout-button');
+            refreshButton = document.getElementById('refresh-button');
+            loadingOrErrorMessage = document.getElementById('loading-or-error-message');
+
+
+            // Add event listener to the login button
+            loginButton.addEventListener('click', handleLogin);
+
+            // Allow pressing Enter in password field to trigger login
+            passwordInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+
+            // Add event listener to the back button
+            backButton.addEventListener('click', showMovieListView);
+
+            // Add event listener to the logout button
+            logoutButton.addEventListener('click', handleLogout);
+
+            // Add event listener to the refresh button
+            refreshButton.addEventListener('click', fetchAndProcessMovies);
+
+
+            console.log("Setting timeout for login screen."); // Log before setting timeout
+            // Automatically show the login screen after 3 seconds and hide the splash screen
+            setTimeout(() => {
+                showLoginScreen();
+                splashScreen.classList.add('hidden'); // Hide the splash screen after timeout
+            }, 3000); // 3000 milliseconds = 3 seconds
+
+            // Start fetching movie data immediately when the DOM is ready
+            fetchAndProcessMovies();
+
+             // Initially, only the splash screen is visible.
+             // After 3 seconds, the login screen is shown and splash screen is hidden.
+             // Data fetching happens in the background.
+             // Main view display happens after successful login AND data is ready.
+        });
+
 
     </script>
 
