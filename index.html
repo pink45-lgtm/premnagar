@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Organizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles can go here if needed */
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 20px;
+        }
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
+            gap: 20px;
+            justify-items: center;
+        }
+        .movie-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            cursor: pointer; /* Indicate clickable */
+            transition: transform 0.2s ease-in-out;
+        }
+         .movie-item:hover {
+             transform: translateY(-5px); /* Slight lift on hover */
+         }
+        .movie-poster {
+            width: 100%;
+            max-width: 150px; /* Max width for grid item */
+            height: auto;
+            border-radius: 4px;
+            object-fit: cover;
+             /* Ensure image covers the area without distortion */
+            aspect-ratio: 2/3; /* Common poster aspect ratio */
+        }
+        .movie-title {
+            margin-top: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #1f2937;
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis if text overflows */
+            white-space: nowrap; /* Prevent wrapping */
+            width: 100%; /* Ensure title takes full width */
+        }
+        .video-links-container {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb; /* Light gray border */
+            width: 100%;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start; /* Align links to the left */
+        }
+        .video-links-container.visible {
+            display: flex; /* Show when visible */
+        }
+        .video-links-container a {
+            color: #3b82f6; /* Tailwind blue-500 */
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        .video-links-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold text-center my-8">Movie Collection</h1>
+        <div id="movie-grid" class="movie-grid">
+            <p>Loading movie data...</p>
+        </div>
+    </div>
+
+    <script>
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQbfSEJakefZg9lBdsREkYqubf7LqzkLo89wWkmqoCdtGZjQBj-QYKdMlCcEZ1v0klmaEQ5W8cSYrM/pub?gid=0&single=true&output=csv";
+        const movieGrid = document.getElementById('movie-grid');
+
+        let movieData = []; // Array to store parsed movie data
+
+        // Function to fetch and parse CSV data
+        async function fetchAndDisplayMovies() {
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const csvText = await response.text();
+
+                // Simple CSV parsing: split by newline
+                const rows = csvText.trim().split('\n');
+
+                // Clear loading message
+                movieGrid.innerHTML = '';
+                movieData = []; // Reset movie data array
+
+                // Process each row, skipping the first row (assuming it's a header)
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    const columns = row.split(',');
+
+                    // Ensure row has enough columns and the first column (movie name) is not empty
+                    if (columns.length >= 4 && columns[0].trim() !== '') {
+                        const movieName = columns[0].trim();
+                        const posterUrl = columns[1].trim(); // Get poster URL from the second column
+                        const videoIdsString = columns[2].trim();
+                        const videoTitlesString = columns[3].trim();
+
+                        const videoIds = videoIdsString.split(';').map(id => id.trim()).filter(id => id !== ''); // Split and trim IDs, remove empty ones
+                        const videoTitles = videoTitlesString.split(';').map(title => title.trim()); // Split and trim Titles
+
+                        // Store the parsed data
+                        movieData.push({
+                            name: movieName,
+                            poster: posterUrl,
+                            videoIds: videoIds,
+                            videoTitles: videoTitles
+                        });
+                    } else {
+                        console.warn("Skipping row due to insufficient columns or empty movie name:", row);
+                    }
+                }
+
+                // Now display only the posters
+                displayMoviePosters();
+
+            } catch (error) {
+                console.error("Error fetching or parsing CSV:", error);
+                movieGrid.innerHTML = '<p class="text-red-500">Failed to load movie data. Please try again later.</p>';
+            }
+        }
+
+        // Function to display only the movie posters
+        function displayMoviePosters() {
+            movieData.forEach((movie, index) => {
+                const movieItemDiv = document.createElement('div');
+                movieItemDiv.classList.add('movie-item');
+                movieItemDiv.dataset.index = index; // Store index to retrieve data later
+
+                const posterImg = document.createElement('img');
+                posterImg.src = movie.poster; // Use the extracted poster URL
+                posterImg.alt = `${movie.name} Poster`;
+                posterImg.classList.add('movie-poster');
+                // Add error handling for image loading
+                posterImg.onerror = function() {
+                    posterImg.src = `https://placehold.co/150x225/e5e7eb/1f2937?text=No+Image`; // Placeholder on error
+                    posterImg.alt = "Image not available";
+                };
+
+                const movieTitleSpan = document.createElement('span');
+                movieTitleSpan.textContent = movie.name;
+                movieTitleSpan.classList.add('movie-title');
+
+                const videoLinksContainer = document.createElement('div');
+                videoLinksContainer.classList.add('video-links-container'); // Initially hidden
+
+                // Append poster and title to item div
+                movieItemDiv.appendChild(posterImg);
+                movieItemDiv.appendChild(movieTitleSpan);
+                movieItemDiv.appendChild(videoLinksContainer); // Add container but keep hidden
+
+                // Add click listener to the movie item div
+                movieItemDiv.addEventListener('click', () => {
+                    toggleVideoLinks(movieItemDiv, index);
+                });
+
+                movieGrid.appendChild(movieItemDiv);
+            });
+        }
+
+        // Function to toggle visibility of video links
+        function toggleVideoLinks(movieItemElement, index) {
+            const videoLinksContainer = movieItemElement.querySelector('.video-links-container');
+            const movie = movieData[index];
+
+            // If links are already visible, hide them
+            if (videoLinksContainer.classList.contains('visible')) {
+                videoLinksContainer.classList.remove('visible');
+                videoLinksContainer.innerHTML = ''; // Clear links when hiding
+            } else {
+                 // Hide all other visible link containers first
+                document.querySelectorAll('.video-links-container.visible').forEach(container => {
+                    container.classList.remove('visible');
+                    container.innerHTML = ''; // Clear links of other containers
+                });
+
+
+                // Show the clicked item's links
+                videoLinksContainer.classList.add('visible');
+                videoLinksContainer.innerHTML = ''; // Clear previous links if any
+
+                // Create and append video links
+                if (movie.videoIds && movie.videoIds.length > 0) {
+                    movie.videoIds.forEach((videoId, i) => {
+                        const videoTitle = movie.videoTitles[i] ? movie.videoTitles[i] : `Part ${i + 1}`;
+                         // Ensure videoId is not empty before creating link
+                        if (videoId) {
+                            const videoLink = document.createElement('a');
+                            // Construct YouTube embed URL - NOTE: This URL structure might need adjustment based on actual video source
+                            // Assuming YouTube embed URL structure for example
+                            videoLink.href = `https://www.youtube.com/embed/${videoId}`;
+                            videoLink.textContent = videoTitle;
+                            videoLink.target = "_blank"; // Open in new tab
+                            videoLink.classList.add('inline-block', 'bg-blue-100', 'text-blue-800', 'text-sm', 'font-medium', 'px-2.5', 'py-0.5', 'rounded', 'dark:bg-blue-900', 'dark:text-blue-300'); // Tailwind badge/link styling
+                            videoLinksContainer.appendChild(videoLink);
+                        }
+                    });
+                } else {
+                     const noLinksMessage = document.createElement('p');
+                     noLinksMessage.textContent = "No video links available.";
+                     noLinksMessage.classList.add('text-gray-600', 'text-sm');
+                     videoLinksContainer.appendChild(noLinksMessage);
+                }
+            }
+        }
+
+
+        // Fetch data when the page loads
+        fetchAndDisplayMovies();
+
+    </script>
+
+</body>
+</html>
